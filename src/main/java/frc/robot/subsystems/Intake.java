@@ -15,6 +15,8 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.math.MathUtil;
+import frc.robot.Constants.intakeConstants;
+import frc.robot.Constants.intakeConstants.*;
 
 
 public class Intake extends SubsystemBase {
@@ -22,7 +24,7 @@ public class Intake extends SubsystemBase {
   private SparkMaxConfig intakeConfig;
   /** Creates a new Intake. */
   public Intake() {
-    intake = new SparkMax(0, MotorType.kBrushless);
+    intake = new SparkMax(intakeConstants.INTAKE_ID, MotorType.kBrushless);
     intakeConfig = new SparkMaxConfig();
     intakeConfig.idleMode(IdleMode.kBrake);
     intake.configure(intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -30,8 +32,8 @@ public class Intake extends SubsystemBase {
   public void spinIntake(double spinSpeed){
     intake.set(spinSpeed);
   }
-  public Command intakeWithJoystick(XboxController controller){
-    return Commands.run(() ->  {intake.set(MathUtil.applyDeadband(controller.getRightY(), 0.05));}, this);
+  public Command intakeWithJoystick(double speed){
+    return Commands.run(() ->  {intake.set(speed);}, this);
   }
 
   @Override
