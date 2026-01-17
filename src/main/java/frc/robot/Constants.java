@@ -5,8 +5,17 @@ package frc.robot;
 
 
 public final class Constants {
+  public static class DriveConstants{
+    // Setting all the motors to an integer
+    public static final int FRONT_LEFT_MOTOR = 1;
+    public static final int FRONT_RIGHT_MOTOR = 2;
+    public static final int BACK_LEFT_MOTOR = 3;
+    public static final int BACK_RIGHT_MOTOR = 4;
+  }
   public static class OperatorConstants {
+    // Setting the controller port
     public static final int kDriverControllerPort = 0;
+  }   
     
 }
   public static class shooterConstants{
