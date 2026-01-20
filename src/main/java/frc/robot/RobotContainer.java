@@ -14,6 +14,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.Intake;
+
+
 import com.revrobotics.spark.SparkMax;
 import frc.robot.subsystems.TankDrive;
 import frc.robot.subsystems.Shooter;
@@ -39,11 +42,21 @@ public class RobotContainer {
   private JoystickButton unstuckButton;
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+  private final Intake intakeSubsystem = new Intake();
+  
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
     // Setting the Xbox Controller to the driver port
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  private final Command spinIntake;
+  private final Command outake;
+  private final XboxController driver;
+  private final XboxController operator;
+  private final JoystickButton intakeButton;
+  private final JoystickButton outakeButton;
+
+
 
   private Command shootCommand;
   private Command unstuckinator;
@@ -53,13 +66,18 @@ public class RobotContainer {
    * RIGHT bumper to shoot LEFT bumper to move motor in reverse
   */
   public RobotContainer() {
-    drive = new TankDrive();
+    spinIntake = Commands.run(() -> {intakeSubsystem.spinIntake(0.4);}, intakeSubsystem);
+    outake = Commands.run(() -> {intakeSubsystem.spinIntake(-0.4);}, intakeSubsystem);
     driver = new XboxController(0);
+    operator = new XboxController(1);
+    intakeButton = new JoystickButton(operator, XboxController.Button.kA.value);
+    outakeButton = new JoystickButton(operator, XboxController.Button.kB.value);
+
+    drive = new TankDrive();
     // Runs the command continuously to drive with joystick
     driveWithJoystick = Commands.run(() -> drive.joystickDrive(driver));
 
     shooter = new Shooter();
-    operator = new XboxController(1);
     //fire
     shootButton = new JoystickButton(operator, XboxController.Button.kRightBumper.value);
     shootCommand = Commands.runEnd(() -> shooter.PIDShoot(3000), () -> shooter.stop(),  shooter);
@@ -87,6 +105,9 @@ public class RobotContainer {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     new Trigger(m_exampleSubsystem::exampleCondition)
         .onTrue(new ExampleCommand(m_exampleSubsystem));
+    intakeButton.whileTrue(spinIntake); // a button
+
+    outakeButton.whileTrue(outake); // b button
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.

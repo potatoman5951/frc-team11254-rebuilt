@@ -24,4 +24,8 @@ public final class Constants {
     public static final double POS_CONVERT = (2.0*Math.PI)/GEAR_RATIO;
     public static final double VELOCITY_CONVERT = POS_CONVERT/GEAR_RATIO;
   }
+  public static class intakeConstants {
+    public static final int INTAKE_ID = 0;
+    
+  }
 }
