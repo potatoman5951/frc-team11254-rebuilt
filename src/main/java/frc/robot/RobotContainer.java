@@ -51,8 +51,7 @@ public class RobotContainer {
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
   private final Command spinIntake;
   private final Command outake;
-  private final XboxController driver;
-  private final XboxController operator;
+
   private final JoystickButton intakeButton;
   private final JoystickButton outakeButton;
 

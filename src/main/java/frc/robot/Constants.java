@@ -17,7 +17,7 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
   }   
     
-}
+
   public static class shooterConstants{
     public static final int SHOOTER = 0;//remeber to change when get motor identity
     public static final double GEAR_RATIO = 0.0;//place holder

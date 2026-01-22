@@ -24,7 +24,7 @@ public class Intake extends SubsystemBase {
   private SparkMaxConfig intakeConfig;
   /** Creates a new Intake. */
   public Intake() { 
-    intake = new SparkMax(intakeConstants.INTAKE_ID, MotorType.kBrushless);
+    intake = new SparkMax(intakeConstants.INTAKE_ID, MotorType.kBrushed);
     intakeConfig = new SparkMaxConfig();
     intakeConfig.idleMode(IdleMode.kBrake);
     intake.configure(intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
