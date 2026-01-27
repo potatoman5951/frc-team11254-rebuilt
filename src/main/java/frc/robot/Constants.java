@@ -19,13 +19,16 @@ public final class Constants {
     
 
   public static class shooterConstants{
-    public static final int SHOOTER = 7;//remeber to change when get motor identity
     public static final double GEAR_RATIO = 1.0;//place holder
+    public static final int SHOOTER = 5;
+    public static final double GEAR_RATIO = 1.0;
     public static final double POS_CONVERT = (2.0*Math.PI)/GEAR_RATIO;
     public static final double VELOCITY_CONVERT = POS_CONVERT/GEAR_RATIO;
+    public static final int SHOOTERINTAKE = 6;
   }
   public static class intakeConstants {
     public static final int INTAKE_ID = 5;
     public static final int FEEDER_ID = 6;
+    
   }
 }
