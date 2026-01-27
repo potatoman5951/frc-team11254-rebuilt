@@ -9,37 +9,105 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import com.revrobotics.PersistMode;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import frc.robot.Constants.intakeConstants;
 import frc.robot.Constants.intakeConstants.*;
+import static frc.robot.Constants.shooterConstants.*;
 
 
 public class Intake extends SubsystemBase {
   private SparkMax intake;
   private SparkMaxConfig intakeConfig;
+  private SparkClosedLoopController sparkControl;
+  private RelativeEncoder encoder;
+  private SparkMax motorIntakeShooter;
+  private SparkMaxConfig motorIntakeShooterConfig;
   /** Creates a new Intake. */
   public Intake() { 
     intake = new SparkMax(intakeConstants.INTAKE_ID, MotorType.kBrushed);
+    motorIntakeShooter = new SparkMax(SHOOTERINTAKE, MotorType.kBrushed);
+
     intakeConfig = new SparkMaxConfig();
-    intakeConfig.idleMode(IdleMode.kBrake);
+    motorIntakeShooterConfig = new SparkMaxConfig();
+    
+    sparkControl = intake.getClosedLoopController();
+    encoder = intake.getEncoder();
+    
+    motorIntakeShooterConfig
+      .idleMode(IdleMode.kBrake)
+      .smartCurrentLimit(60);
+//PID woot! woot!
+    intakeConfig
+      .idleMode(IdleMode.kBrake)
+      .smartCurrentLimit(60)
+      .closedLoop.positionWrappingEnabled(true)
+      .pid(.0005, 0, 0);
+    intakeConfig.encoder.velocityConversionFactor(VELOCITY_CONVERT);
+//config
     intake.configure(intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    motorIntakeShooter.configure(motorIntakeShooterConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
+
   /** spins the intake */
   public void spinIntake(double spinSpeed){
     intake.set(spinSpeed);
   }
+
   /** spins the intake with joystick */
   public Command intakeWithJoystick(double speed){
     return Commands.run(() ->  {intake.set(speed);}, this);
   }
 
-  @Override
+  /**WE NEED TO PUT A STOP TO THIS.(/°@^)
+ * creates the stop command to prevent continuou running
+ */
+  public void stop(){
+    intake.stopMotor();
+    motorIntakeShooter.stopMotor();
+  }
+
+  /**This command is largely empty
+   * placed to prevent an ERROR (/°W^)
+   */
+  public void spinShoot(){
+    intake.set(.4);
+  }
+
+  /**will be pulled from when firing
+   * 
+   */
+  public void PIDShoot(double fireSpeed){
+    motorIntakeShooter.set(.6);
+    sparkControl.setSetpoint(fireSpeed, ControlType.kVelocity);
+  }
+
+  public void intakeMotorShooter(){
+    motorIntakeShooter.set(.4);
+  }
+
+  public void intakeMotorShooterStop(){
+    motorIntakeShooter.stopMotor();
+  }
+public void intakeWithPID(double speed){
+  sparkControl.setSetpoint(speed, ControlType.kVelocity);
+}
+@Override
   public void periodic() {
     // This method will be called once per scheduler run
+  }
+
+  public void intitSendable(SendableBuilder builder){
+    super.initSendable(builder);
+    builder.addDoubleProperty("shooter velocity", () -> encoder.getVelocity(), null);
+
   }
 }
