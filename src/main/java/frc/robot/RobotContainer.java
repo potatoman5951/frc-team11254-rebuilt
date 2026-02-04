@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -33,64 +34,63 @@ import edu.wpi.first.wpilibj2.command.Commands;
 public class RobotContainer {
   //define stuff
   private TankDrive drive;
+  private Intake intakeSubsystem;
+  
   private XboxController driver;
-  private Command driveWithJoystick;
-
-  // private Shooter shooter;
   private XboxController operator;
-  private JoystickButton shootButton;
-  private JoystickButton unstuckButton;
+
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-  private final Intake intakeSubsystem = new Intake();
-  
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
     // Setting the Xbox Controller to the driver port
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
-  private final Command spinIntake;
-  private final Command outake;
-  private final JoystickButton intakeButton;
-  private final JoystickButton outakeButton;
 
+  private JoystickButton intakeButton;
+  private JoystickButton outakeButton;
+  private JoystickButton shootButton;
+  private JoystickButton unstuckButton;
 
-
+  private Command driveWithJoystick;
+  private Command spinIntake;
+  private Command outake;
   private Command shootCommand;
   private Command unstuckinator;
+  private Command shooterIntake;
+  
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. 
    * here is where speeds are set as well as the controll devices assigned
    * RIGHT bumper to shoot LEFT bumper to move motor in reverse
   */
   public RobotContainer() {
-    spinIntake = Commands.run(() -> {intakeSubsystem.spinIntake(0.4);}, intakeSubsystem);
-    outake = Commands.run(() -> {intakeSubsystem.spinIntake(-0.4);}, intakeSubsystem);
-    driver = new XboxController(0);
-    operator = new XboxController(1);
-    intakeButton = new JoystickButton(operator, XboxController.Button.kA.value);
-    outakeButton = new JoystickButton(operator, XboxController.Button.kB.value);
-
+    intakeSubsystem = new Intake();
     drive = new TankDrive();
-
-    SmartDashboard.putData(drive);
-    // Runs the command continuously to drive with joystick
+    
+    spinIntake = Commands.runEnd(() -> {intakeSubsystem.spinIntake(-0.4, -0.8);}, ()-> {intakeSubsystem.spinIntake(0,0);}, intakeSubsystem);
+    outake = Commands.runEnd(() -> {intakeSubsystem.spinIntake(0.4, 0.8);}, () -> {intakeSubsystem.spinIntake(0,0);}, intakeSubsystem);
+    shootCommand = Commands.runEnd(() -> intakeSubsystem.PIDShoot(-3000), () -> intakeSubsystem.stop(),  intakeSubsystem);
+    unstuckinator = Commands.runEnd(() -> intakeSubsystem.PIDShoot(500), () -> intakeSubsystem.stop(), intakeSubsystem);
     driveWithJoystick = Commands.run(() -> drive.joystickDrive(driver), drive);
 
-    // shooter = new Shooter();
-    //fire
+    SmartDashboard.putData(intakeSubsystem);
+
+    driver = new XboxController(0);
+    operator = new XboxController(1);
+    
+    intakeButton = new JoystickButton(operator, XboxController.Button.kA.value);
+    outakeButton = new JoystickButton(operator, XboxController.Button.kB.value);
+    unstuckButton = new JoystickButton(operator, XboxController.Button.kLeftBumper.value); //left bumper
     shootButton = new JoystickButton(operator, XboxController.Button.kRightBumper.value);
-    // shootCommand = Commands.runEnd(() -> shooter.PIDShoot(3000), () -> shooter.stop(),  shooter);
-    //if fuel gets stuck use this to reverse motor(left bumper)
-    unstuckButton = new JoystickButton(operator, XboxController.Button.kLeftBumper.value);
-    // unstuckinator = Commands.runEnd(() -> shooter.PIDShoot(-500), () -> shooter.stop(), shooter);
 
-    drive.setDefaultCommand(driveWithJoystick);
-
+    SmartDashboard.putData(drive);
+    
     // Configure the trigger bindings
+    drive.setDefaultCommand(driveWithJoystick);
     configureBindings();
-
   }
+  
 
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
@@ -102,14 +102,13 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    //Right bumper to shoot left bumper to reverse shooter motor.(/°W^)
-    // shootButton.whileTrue(shootCommand);
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     new Trigger(m_exampleSubsystem::exampleCondition)
         .onTrue(new ExampleCommand(m_exampleSubsystem));
+    
     intakeButton.whileTrue(spinIntake); // a button
-
     outakeButton.whileTrue(outake); // b button
+    shootButton.whileTrue(shootCommand); //right bumper
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
