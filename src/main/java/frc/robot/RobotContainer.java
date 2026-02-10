@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.Intake;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 
 import com.revrobotics.spark.SparkMax;
@@ -58,6 +59,8 @@ public class RobotContainer {
   private Command shootCommand;
   private Command unstuckinator;
   private Command shooterIntake;
+
+  private SendableChooser<Command> autoChooser;
   
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. 
@@ -68,11 +71,15 @@ public class RobotContainer {
     intakeSubsystem = new Intake();
     drive = new TankDrive();
     
-    spinIntake = Commands.runEnd(() -> {intakeSubsystem.spinIntake(-0.4, -0.8);}, ()-> {intakeSubsystem.spinIntake(0,0);}, intakeSubsystem);
-    outake = Commands.runEnd(() -> {intakeSubsystem.spinIntake(0.4, 0.8);}, () -> {intakeSubsystem.spinIntake(0,0);}, intakeSubsystem);
-    shootCommand = Commands.runEnd(() -> intakeSubsystem.PIDShoot(-3000), () -> intakeSubsystem.stop(),  intakeSubsystem);
+    spinIntake = Commands.runEnd(() -> {intakeSubsystem.spinIntake(0.6, -0.8);}, ()-> {intakeSubsystem.spinIntake(0,0);}, intakeSubsystem);
+    outake = Commands.runEnd(() -> {intakeSubsystem.spinIntake(-0.6, 0.8);}, () -> {intakeSubsystem.spinIntake(0,0);}, intakeSubsystem);
+    shootCommand = Commands.runEnd(() -> intakeSubsystem.PIDShoot(3000), () -> intakeSubsystem.stop(),  intakeSubsystem);
     unstuckinator = Commands.runEnd(() -> intakeSubsystem.PIDShoot(500), () -> intakeSubsystem.stop(), intakeSubsystem);
     driveWithJoystick = Commands.run(() -> drive.joystickDrive(driver), drive);
+
+    autoChooser = new SendableChooser<>();
+    autoChooser.addOption("Intake SysID", Autos.runIntakeSysID(intakeSubsystem));
+    SmartDashboard.putData(autoChooser);
 
     SmartDashboard.putData(intakeSubsystem);
 

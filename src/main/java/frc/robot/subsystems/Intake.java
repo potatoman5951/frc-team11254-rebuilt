@@ -4,7 +4,8 @@
 
 package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -21,6 +22,10 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import frc.robot.Constants.intakeConstants;
 import frc.robot.Constants.intakeConstants.*;
+
+import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Seconds;
 import static frc.robot.Constants.shooterConstants.*;
 
 
@@ -31,10 +36,11 @@ public class Intake extends SubsystemBase {
   private SparkMaxConfig feederConfig;
   private SparkClosedLoopController sparkControl;
   private RelativeEncoder encoder;
+  private SysIdRoutine shooterSysID;
 
   /** Creates a new Intake. */
   public Intake() { 
-    intake = new SparkMax(intakeConstants.INTAKE_ID, MotorType.kBrushed);
+    intake = new SparkMax(intakeConstants.INTAKE_ID, MotorType.kBrushless);
     feeder = new SparkMax(intakeConstants.FEEDER_ID, MotorType.kBrushed);
 
     intakeConfig = new SparkMaxConfig();
@@ -59,6 +65,17 @@ public class Intake extends SubsystemBase {
 //config
     intake.configure(intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     feeder.configure(feederConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+
+    shooterSysID = new SysIdRoutine(
+      new SysIdRoutine.Config(
+        Volts.of(1).per(Second),
+        Volts.of(3),
+        Seconds.of(10)
+      ), 
+      new SysIdRoutine.Mechanism(
+        (volts) -> intake.setVoltage(volts.in(Volts)), 
+        null,
+        this));
   }
 
   /** spins the intake */
@@ -92,16 +109,38 @@ public class Intake extends SubsystemBase {
    */
   public void PIDShoot(double fireSpeed){
     feeder.set(.6);
-    sparkControl.setSetpoint(fireSpeed, ControlType.kVelocity);
+    intake.set(0.8);
+    ///sparkControl.setSetpoint(fireSpeed, ControlType.kVelocity);
   }
 
   public void intakeMotorShooter(){
     feeder.set(.4);
   }
 
+  public Command runSysID(){
+    return Commands.sequence(
+      shooterSysID.quasistatic(Direction.kForward).withTimeout(2),
+      shooterSysID.quasistatic(Direction.kReverse).withTimeout(2),
+      shooterSysID.dynamic(Direction.kForward).withTimeout(2),
+      shooterSysID.dynamic(Direction.kReverse).withTimeout(2));
+  }
+
+  public double getPosition(){
+    return encoder.getPosition();
+  }
+
+  public double getVelocity(){
+    return encoder.getVelocity();
+  }
+
+  public double getVoltage(){
+    return intake.getAppliedOutput()*intake.getBusVoltage();
+  }
+
   public void intakeMotorShooterStop(){
     feeder.stopMotor();
   }
+
   public void intakeWithPID(double speed){
     sparkControl.setSetpoint(speed, ControlType.kVelocity);
   }
