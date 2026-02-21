@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.OperatorConstants;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -75,6 +77,16 @@ public class TankDrive extends SubsystemBase {
   /** Drive and rotate at the given speeds */
   public void drive(double speed, double rotationSpeed){
     tankDrive.arcadeDrive(speed, rotationSpeed);
+  }
+
+  public Command timedDrive(double speed, double time) {
+    //return Commands.run(() -> tankDrive.arcadeDrive(speed, 0), this).withTimeout(time);
+    return Commands.run(() -> move(speed), this).withTimeout(time);
+  }
+
+  public void move(double speed) {
+    frontLeft.set(speed);
+    frontRight.set(speed);
   }
 
   /** Calls to stop the motors */

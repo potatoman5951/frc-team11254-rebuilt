@@ -7,6 +7,7 @@ package frc.robot.commands;
 import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.commands.ShootWithDelay;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.TankDrive;
 
@@ -21,32 +22,22 @@ public final class Autos {
 
   public static Command centerAuto(TankDrive drive, Intake shoot){
     return Commands.sequence(
-      Commands.runEnd(() -> shoot.PIDShoot(3000), () -> shoot.stop(), shoot).withTimeout(8),
-      new TimedDrive(drive,1)
+      drive.timedDrive(0.4, 1),
+      new ShootWithDelay(shoot)
     );
   }
 
   public static Command leftAuto(TankDrive drive, Intake shoot){
     return Commands.sequence(
-      Commands.runEnd(() -> shoot.PIDShoot(3000), () -> shoot.stop(), shoot).withTimeout(8),
-      Commands.run(() -> drive.drive(0.5, -0.1)).withTimeout(0.5),
-      Commands.run(() -> drive.drive(-0.5, 0)).withTimeout(0.5),
-      Commands.run(() -> drive.drive(0.5, 0.2)).withTimeout(0.5),
-      Commands.run(() -> drive.drive(0.25, 0)).withTimeout(0.5),
-      Commands.run(() -> drive.drive(0.5, 0.2)).withTimeout(0.5),
-      Commands.run(() -> drive.drive(0.5, 0)).withTimeout(0.5)
+      Commands.run(() -> drive.drive(0.4, -0.05), drive).withTimeout(1),
+      new ShootWithDelay(shoot)
     );
   }
 
   public static Command rightAuto(TankDrive drive, Intake shoot){
     return Commands.sequence(
-      Commands.runEnd(() -> shoot.PIDShoot(3000), () -> shoot.stop(), shoot).withTimeout(8),
-      Commands.run(() -> drive.drive(0.5, 0.1)).withTimeout(0.5),
-      Commands.run(() -> drive.drive(-0.5, 0)).withTimeout(0.5),
-      Commands.run(() -> drive.drive(0.5, -0.2)).withTimeout(0.5),
-      Commands.run(() -> drive.drive(0.25, 0)).withTimeout(0.5),
-      Commands.run(() -> drive.drive(0.5, -0.2)).withTimeout(0.5),
-      Commands.run(() -> drive.drive(0.5, 0)).withTimeout(0.5)
+      drive.timedDrive(0.4, .5),
+      new ShootWithDelay(shoot)
     );
   }
 

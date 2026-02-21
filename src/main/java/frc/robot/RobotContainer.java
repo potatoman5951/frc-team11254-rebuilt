@@ -76,6 +76,7 @@ public class RobotContainer {
   public RobotContainer() {
     intakeSubsystem = new Intake();
     drive = new TankDrive();
+    climbSubsystem = new climber();
     
     spinIntake = Commands.runEnd(() -> {intakeSubsystem.spinIntake(0.6, -0.8);}, ()-> {intakeSubsystem.spinIntake(0,0);}, intakeSubsystem);
     outake = Commands.runEnd(() -> {intakeSubsystem.spinIntake(-0.6, 0.8);}, () -> {intakeSubsystem.spinIntake(0,0);}, intakeSubsystem);
@@ -88,8 +89,10 @@ public class RobotContainer {
     autoChooser = new SendableChooser<>();
     autoChooser.addOption("Intake SysID", Autos.runIntakeSysID(intakeSubsystem));
     autoChooser.addOption("Center Auto", Autos.centerAuto(drive, intakeSubsystem));
+    autoChooser.addOption("Left Auto", Autos.leftAuto(drive, intakeSubsystem));
+    autoChooser.addOption("Right Auto", Autos.rightAuto(drive,intakeSubsystem));
     SmartDashboard.putData(autoChooser);
-
+    SmartDashboard.putData(climbSubsystem);
     SmartDashboard.putData(intakeSubsystem);
 
     driver = new XboxController(0);
@@ -127,8 +130,8 @@ public class RobotContainer {
     intakeButton.whileTrue(spinIntake); // a button
     outakeButton.whileTrue(outake); // b button
     shootButton.whileTrue(shootCommand); //right bumper
-    climbupButton.onTrue(climbUp);
-    climbdownButton.onTrue(Climbdown);
+    climbupButton.onTrue(climbSubsystem.climbUp());
+    climbdownButton.onTrue(climbSubsystem.climbDown());
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
@@ -144,6 +147,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
+    return autoChooser.getSelected();
   }
 }

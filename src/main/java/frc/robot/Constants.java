@@ -35,7 +35,8 @@ public final class Constants {
     public static final int RIGHTCLIMB = 7;
     public static final int LEFTCLIMB = 8;
     public static final double CLIMBGEAR = 20.25;
-    public static final double CLIMBERUP = -34;
+    public static final double CLIMBERUP = 34;
     public static final double CLIMBDOWN = 0;
+    public static final double CLIMBERPOS = (2*Math.PI)/CLIMBGEAR;
   }
 }

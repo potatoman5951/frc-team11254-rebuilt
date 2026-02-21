@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj.XboxController;
@@ -117,6 +118,14 @@ public class Intake extends SubsystemBase {
     feeder.set(.4);
   }
 
+  public void spinShooter() {
+    intake.set(0.8);
+  }
+
+  public void spinFeeder() {
+    feeder.set(0.6);
+  }
+
   public Command runSysID(){
     return Commands.sequence(
       shooterSysID.quasistatic(Direction.kForward).withTimeout(2),
@@ -124,23 +133,19 @@ public class Intake extends SubsystemBase {
       shooterSysID.dynamic(Direction.kForward).withTimeout(2),
       shooterSysID.dynamic(Direction.kReverse).withTimeout(2));
   }
-
-  public double getPosition(){
-    return encoder.getPosition();
-  }
-
+/**return shooter velocity*/
   public double getVelocity(){
     return encoder.getVelocity();
   }
-
+/**gets the voltage applied to the motor*/
   public double getVoltage(){
     return intake.getAppliedOutput()*intake.getBusVoltage();
   }
-
+/**stops the shoot motor*/
   public void intakeMotorShooterStop(){
     feeder.stopMotor();
   }
-
+/**applies the velocity constant to the spped value*/
   public void intakeWithPID(double speed){
     sparkControl.setSetpoint(speed, ControlType.kVelocity);
   }
@@ -149,7 +154,7 @@ public class Intake extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
   }
-
+/**elastic stuffs*/
   public void intitSendable(SendableBuilder builder){
     super.initSendable(builder);
     builder.addDoubleProperty("shooter velocity", () -> encoder.getVelocity(), null);
