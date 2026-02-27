@@ -27,16 +27,9 @@ public final class Autos {
     );
   }
 
-  public static Command leftAuto(TankDrive drive, Intake shoot){
+  public static Command sideAuto(TankDrive drive, Intake shoot){
     return Commands.sequence(
-      Commands.run(() -> drive.drive(0.4, -0.05), drive).withTimeout(1),
-      new ShootWithDelay(shoot)
-    );
-  }
-
-  public static Command rightAuto(TankDrive drive, Intake shoot){
-    return Commands.sequence(
-      drive.timedDrive(0.4, .5),
+      drive.timedDrive(0.3, .6), //WAS 0.4
       new ShootWithDelay(shoot)
     );
   }

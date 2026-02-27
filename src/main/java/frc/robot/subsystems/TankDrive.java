@@ -68,10 +68,19 @@ public class TankDrive extends SubsystemBase {
     backRight.configure(backRightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
+  // public static double cubicDrive(double value){
+  //   return Math.pow(value, 3);
+  //   //value*value*value;
+  // }
+  
+
 
   /** Makes the robot drive with joystick */
   public void joystickDrive(XboxController driver){
     tankDrive.tankDrive(MathUtil.applyDeadband(-driver.getLeftY(), 0.05), MathUtil.applyDeadband(-driver.getRightY(), 0.05));
+    // tankDrive.tankDrive(cubicDrive(-driver.getLeftY()), cubicDrive(-driver.getRightY()));
+    //tankDrive.arcadeDrive(MathUtil.applyDeadband(-driver.getLeftY(), 0.05), (MathUtil.applyDeadband(-driver.getRightX(), 0.05)) / 1.2);
+    //tankDrive.arcadeDrive(cubicDrive(-driver.getLeftY()), cubicDrive(-driver.getRightX()));
   }
 
   /** Drive and rotate at the given speeds */
