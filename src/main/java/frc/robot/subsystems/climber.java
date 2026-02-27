@@ -31,8 +31,8 @@ public class climber extends SubsystemBase {
   private SparkClosedLoopController climbPID;
   /** Creates a new climber. */
   public climber() {
-    climbMotorRight = new SparkMax(RIGHTCLIMB, MotorType.kBrushed);
-    climbMotorLeft = new SparkMax(LEFTCLIMB, MotorType.kBrushed);
+    climbMotorRight = new SparkMax(RIGHTCLIMB, MotorType.kBrushless);
+    climbMotorLeft = new SparkMax(LEFTCLIMB, MotorType.kBrushless);
 
     climbMotorLeftConfig = new SparkMaxConfig();
     climbMotorRightConfig = new SparkMaxConfig();
@@ -48,7 +48,7 @@ public class climber extends SubsystemBase {
     climbMotorRightConfig
       .idleMode(IdleMode.kBrake)
       .smartCurrentLimit(60);
-    climbMotorRightConfig.closedLoop.pid(1,0,0).outputRange(-1, 1).allowedClosedLoopError(.1, ClosedLoopSlot.kSlot0);//range for output still needs to be found
+    climbMotorRightConfig.closedLoop.pid(0.2,0,0).outputRange(-1, 1).allowedClosedLoopError(.1, ClosedLoopSlot.kSlot0);//range for output still needs to be found
     climbMotorRightConfig.encoder.positionConversionFactor(CLIMBERPOS);
 
     climbMotorRight.configure(climbMotorRightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);

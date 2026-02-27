@@ -22,6 +22,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 import com.revrobotics.spark.SparkMax;
 import frc.robot.subsystems.TankDrive;
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -65,6 +67,7 @@ public class RobotContainer {
   private Command shooterIntake;
   private Command climbUp;
   private Command Climbdown;
+  private UsbCamera camera;
 
   private SendableChooser<Command> autoChooser;
   
@@ -77,6 +80,9 @@ public class RobotContainer {
     intakeSubsystem = new Intake();
     drive = new TankDrive();
     climbSubsystem = new climber();
+    camera = CameraServer.startAutomaticCapture();
+    camera.setResolution(320, 420);
+    camera.setFPS(30);
     
     spinIntake = Commands.runEnd(() -> {intakeSubsystem.spinIntake(0.6, -0.8);}, ()-> {intakeSubsystem.spinIntake(0,0);}, intakeSubsystem);
     outake = Commands.runEnd(() -> {intakeSubsystem.spinIntake(-0.6, 0.8);}, () -> {intakeSubsystem.spinIntake(0,0);}, intakeSubsystem);
@@ -89,8 +95,7 @@ public class RobotContainer {
     autoChooser = new SendableChooser<>();
     autoChooser.addOption("Intake SysID", Autos.runIntakeSysID(intakeSubsystem));
     autoChooser.addOption("Center Auto", Autos.centerAuto(drive, intakeSubsystem));
-    autoChooser.addOption("Left Auto", Autos.leftAuto(drive, intakeSubsystem));
-    autoChooser.addOption("Right Auto", Autos.rightAuto(drive,intakeSubsystem));
+    autoChooser.addOption("Side Auto", Autos.sideAuto(drive,intakeSubsystem));
     SmartDashboard.putData(autoChooser);
     SmartDashboard.putData(climbSubsystem);
     SmartDashboard.putData(intakeSubsystem);
@@ -130,8 +135,8 @@ public class RobotContainer {
     intakeButton.whileTrue(spinIntake); // a button
     outakeButton.whileTrue(outake); // b button
     shootButton.whileTrue(shootCommand); //right bumper
-    climbupButton.onTrue(climbSubsystem.climbUp());
-    climbdownButton.onTrue(climbSubsystem.climbDown());
+    climbupButton.onTrue(climbUp);
+    climbdownButton.onTrue(Climbdown);
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
